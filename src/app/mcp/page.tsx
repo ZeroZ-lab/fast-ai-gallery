@@ -60,7 +60,6 @@ const PHASES = {
   SWITCHING: 'SWITCHING'        // 切换服务器
 };
 
-export default function MCPVisualizer() {
 type Phase = (typeof PHASES)[keyof typeof PHASES];
 type PacketDirection = 'c2s' | 's2c';
 type PacketType = 'request' | 'response' | 'tool' | 'resource' | 'prompt';
@@ -78,6 +77,8 @@ type LogEntry = {
   text: string;
   type: LogType;
 };
+
+export default function MCPVisualizer() {
 
   const [phase, setPhase] = useState<Phase>(PHASES.CONNECTING);
   const [serverIndex, setServerIndex] = useState(0);

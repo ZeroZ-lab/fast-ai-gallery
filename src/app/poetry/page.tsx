@@ -3,8 +3,29 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, ChevronRight, ChevronLeft, RefreshCw, Moon, Info, X, Repeat, Clock } from 'lucide-react';
 
+type MoonState = "setting" | "hidden" | "visible";
+type SceneConfig = {
+  moon?: MoonState;
+  birds: boolean;
+  fog: boolean;
+  fire: boolean;
+  bell: boolean;
+};
+
+type PoemLine = {
+  text: string;
+  translation: string;
+  sceneConfig: SceneConfig;
+};
+
+type PoemData = {
+  title: string;
+  author: string;
+  lines: PoemLine[];
+};
+
 // 诗词数据：枫桥夜泊
-const POEM_DATA = {
+const POEM_DATA: PoemData = {
   title: "枫桥夜泊",
   author: "张继 (唐)",
   lines: [
@@ -32,8 +53,6 @@ const POEM_DATA = {
 };
 
 // SVG 视觉组件：模拟剪纸/卡片风格
-
-type MoonState = "setting" | "hidden" | "visible";
 
 const MoonAsset = ({ state }: { state?: MoonState }) => (
   <svg viewBox="0 0 100 100" className={`w-full h-full transition-all duration-1000 ${state === 'setting' ? 'translate-y-20 opacity-50' : state === 'hidden' ? 'translate-y-40 opacity-0' : 'translate-y-0 opacity-100'}`}>
@@ -120,7 +139,7 @@ export default function PoetryCardApp() {
 
   // Auto-play logic
   useEffect(() => {
-    let interval;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (isPlaying) {
       interval = setInterval(() => {
         setCurrentLine((prev) => {
@@ -137,7 +156,11 @@ export default function PoetryCardApp() {
         });
       }, intervalTime);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, [isPlaying, isLooping, intervalTime]);
 
   // Parallax Calculation
