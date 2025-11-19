@@ -55,23 +55,25 @@ export function LocaleSwitcher({ currentLocale }: LocaleSwitcherProps) {
         <span className="text-[10px] text-zinc-400">{open ? "▲" : "▼"}</span>
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 min-w-[160px] rounded-2xl border border-zinc-200/60 bg-white/95 p-2 text-sm shadow-2xl dark:border-zinc-800 dark:bg-zinc-900/90">
-          {LOCALES.map((locale) => (
-            <button
-              key={locale}
-              type="button"
-              disabled={isPending}
-              onClick={() => handleSelect(locale)}
-              className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition ${
-                locale === currentLocale
-                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-                  : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800/60"
-              }`}
-            >
-              <span>{LOCALE_LABELS[locale]}</span>
-              {locale === currentLocale && <span className="text-[10px]">✓</span>}
-            </button>
-          ))}
+        <div className="absolute right-0 mt-2 min-w-[200px] rounded-2xl border border-zinc-200/60 bg-white/95 p-3 text-sm shadow-2xl dark:border-zinc-800 dark:bg-zinc-900/90">
+          <div className="flex flex-col gap-2">
+            {LOCALES.map((locale) => (
+              <button
+                key={locale}
+                type="button"
+                disabled={isPending}
+                onClick={() => handleSelect(locale)}
+                className={`flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-left text-sm transition ${
+                  locale === currentLocale
+                    ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
+                    : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800/60"
+                }`}
+              >
+                <span>{LOCALE_LABELS[locale]}</span>
+                {locale === currentLocale && <span className="text-[10px]">✓</span>}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
