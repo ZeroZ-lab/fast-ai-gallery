@@ -5,6 +5,21 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { Play, Pause, RefreshCw, Focus, Thermometer, Activity, Globe } from 'lucide-react';
 
+type BodyType = 'star' | 'planet';
+
+type BodyEntity = {
+  mesh: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>;
+  trail: THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>;
+  trailPositions: number[];
+  mass: number;
+  radius: number;
+  type: BodyType;
+  pos: THREE.Vector3;
+  vel: THREE.Vector3;
+  acc: THREE.Vector3;
+  temp: number;
+};
+
 const CONFIG = {
   G: 1.5, 
   subSteps: 5,
@@ -25,33 +40,41 @@ export default function TrisolarisSim() {
   const [era, setEra] = useState('stable'); // stable, chaotic-hot, chaotic-cold
   const [isPaused, setIsPaused] = useState(false);
   const [speed, setSpeed] = useState(1.0);
-  const [logs, setLogs] = useState([]);
+  const [logs, setLogs] = useState<string[]>([]);
 
   // --- Refs for Three.js & Physics Engine ---
-  const containerRef = useRef(null);
-  const sceneRef = useRef(null);
-  const cameraRef = useRef(null);
-  const rendererRef = useRef(null);
-  const controlsRef = useRef(null);
-  const requestRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const controlsRef = useRef<OrbitControls | null>(null);
+  const requestRef = useRef<number | null>(null);
   
   // Physics state held in ref to avoid re-renders during game loop
   const physicsState = useRef({
-    bodies: [],
-    planet: null,
+    bodies: [] as BodyEntity[],
+    planet: null as BodyEntity | null,
     stepCount: 0,
     civState: 'alive', // alive, dehydrated, destroyed
     lastUiUpdate: 0
   });
 
   // --- Helper: Logger ---
-  const addLog = useCallback((msg) => {
+  const addLog = useCallback((msg: string) => {
     const time = Math.floor(physicsState.current.stepCount / 10);
     setLogs(prev => [...prev.slice(-19), `[T+${time}] ${msg}`]); // Keep last 20 logs
   }, []);
 
   // --- Helper: Create Body ---
-  const createBody = (scene, type, mass, color, radius, posVec, velVec) => {
+  const createBody = (
+    scene: THREE.Scene,
+    type: BodyType,
+    mass: number,
+    color: number,
+    radius: number,
+    posVec: THREE.Vector3,
+    velVec: THREE.Vector3,
+  ): BodyEntity => {
     let mesh;
     if (type === 'star') {
       const geometry = new THREE.SphereGeometry(radius, 32, 32);
@@ -71,6 +94,9 @@ export default function TrisolarisSim() {
       const canvas = document.createElement('canvas');
       canvas.width = 64; canvas.height = 64;
       const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Failed to get canvas 2D context');
+      }
       const grad = ctx.createRadialGradient(32,32,0, 32,32,32);
       grad.addColorStop(0, 'rgba(255,255,255,1)');
       grad.addColorStop(0.2, 'rgba(255,255,255,0.6)');
@@ -189,7 +215,9 @@ export default function TrisolarisSim() {
 
     // Cleanup
     return () => {
-      cancelAnimationFrame(requestRef.current);
+      if (requestRef.current !== null) {
+        cancelAnimationFrame(requestRef.current);
+      }
       if (rendererRef.current && containerRef.current) {
         containerRef.current.removeChild(rendererRef.current.domElement);
       }
@@ -511,7 +539,11 @@ export default function TrisolarisSim() {
     // Start Loop
     requestRef.current = requestAnimationFrame(tick);
 
-    return () => cancelAnimationFrame(requestRef.current);
+    return () => {
+      if (requestRef.current !== null) {
+        cancelAnimationFrame(requestRef.current);
+      }
+    };
   }, [addLog]); // Re-bind if logger changes (it shouldn't due to useCallback)
 
 
