@@ -6,7 +6,7 @@ import { Play, Pause, ChevronRight, ChevronLeft, RefreshCw, Brain, MessageSquare
 const LLMVisualize = () => {
   const [step, setStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const timerRef = useRef(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 模拟输入句子
   const inputTokens = [
@@ -39,9 +39,17 @@ const LLMVisualize = () => {
         });
       }, 2500);
     } else {
-      clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     }
-    return () => clearInterval(timerRef.current);
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
   }, [isPlaying]);
 
   const handleNext = () => {
