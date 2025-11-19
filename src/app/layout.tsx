@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { SiteHeader } from "@/components/site-header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,9 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fast Gemini",
-  description:
-    "把 Gemini 导出的 HTML 复制进仓库，就能自动生成可访问的 Vercel 页面。",
+  title: "AI Gallery",
+  description: "一个快速托管 AI / 交互 Demo 的 Next.js Gallery 模板。",
 };
 
 export default function RootLayout({
@@ -28,7 +28,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <SiteHeader />
+        <div className="pt-4">{children}</div>
       </body>
     </html>
   );

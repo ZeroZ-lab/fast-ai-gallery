@@ -33,7 +33,9 @@ const POEM_DATA = {
 
 // SVG 视觉组件：模拟剪纸/卡片风格
 
-const MoonAsset = ({ state }) => (
+type MoonState = "setting" | "hidden" | "visible";
+
+const MoonAsset = ({ state }: { state?: MoonState }) => (
   <svg viewBox="0 0 100 100" className={`w-full h-full transition-all duration-1000 ${state === 'setting' ? 'translate-y-20 opacity-50' : state === 'hidden' ? 'translate-y-40 opacity-0' : 'translate-y-0 opacity-100'}`}>
     <circle cx="50" cy="50" r="40" fill="#FEFCE8" className="drop-shadow-[0_0_15px_rgba(254,252,232,0.6)]" />
   </svg>
@@ -57,7 +59,7 @@ const TreeAsset = () => (
   </svg>
 );
 
-const BoatAsset = ({ fireOn }) => (
+const BoatAsset = ({ fireOn = false }: { fireOn?: boolean }) => (
   <svg viewBox="0 0 200 100" className="w-full h-full">
     {/* Boat Body */}
     <path d="M20,70 Q100,90 180,70 L160,85 Q100,100 40,85 Z" fill="#27272a" className="drop-shadow-lg" />
@@ -84,7 +86,7 @@ const TempleAsset = () => (
   </svg>
 );
 
-const FogLayer = ({ active }) => (
+const FogLayer = ({ active = false }: { active?: boolean }) => (
   <div className={`absolute inset-0 pointer-events-none transition-opacity duration-2000 ${active ? 'opacity-60' : 'opacity-20'}`}>
      <div className="w-full h-full bg-gradient-to-t from-slate-300/20 to-transparent" />
      {/* Moving fog particles simulated with divs */}
@@ -93,7 +95,7 @@ const FogLayer = ({ active }) => (
   </div>
 );
 
-const BellEffect = ({ active }) => {
+const BellEffect = ({ active = false }: { active?: boolean }) => {
   if (!active) return null;
   return (
     <div className="absolute top-1/4 right-10 z-50 pointer-events-none">
@@ -113,8 +115,8 @@ export default function PoetryCardApp() {
   const [intervalTime, setIntervalTime] = useState(4000);
 
   // Mouse Interaction State
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const containerRef = useRef(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Auto-play logic
   useEffect(() => {
@@ -139,7 +141,7 @@ export default function PoetryCardApp() {
   }, [isPlaying, isLooping, intervalTime]);
 
   // Parallax Calculation
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
     const { left, top, width, height } = containerRef.current.getBoundingClientRect();
     const x = (e.clientX - left) / width - 0.5;
